@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{POST_TITLE}}</title>
+  <meta name="description" content="{{POST_META}}">
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/static/style.css">
+  {% include 'includes/analytics.html' %}
+</head>
+<body>
+<header class="topbar"><div class="container header-inner"><div class="brand"><img src="/static/favicon.png" class="logo-img" alt="BOT logo"><div class="brand-text"><div class="brand-main">BOT TRADING AI</div></div></div></div></header>
+<div class="container main-grid single-article">
+  <main class="article">
+    <article>
+      <h2>{{POST_TITLE}}</h2>
+      <p class="meta">Published: {{POST_DATE}}</p>
+      <div class="content">{{POST_CONTENT | safe}}</div>
+    </article>
+  </main>
+  <aside class="sidebar">
+    <div class="widget ad">{% include 'includes/adsterra.html' %}</div>
+  </aside>
+</div>
+<footer class="site-footer"><div class="container"><p>© {{ year }} AI Market Insights</p></div></footer>
+</body>
+</html>

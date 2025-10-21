@@ -1,0 +1,23 @@
+:root{--accent:#0b6eff;--bg:#f7f8fb;--container:1100px}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;margin:0;background:var(--bg);color:#111}
+.container{max-width:var(--container);margin:0 auto;padding:20px}
+.topbar{background:#0f1724;color:#fff;padding:14px 0}
+.header-inner{display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:12px}
+.logo-img{width:48px;height:48px;border-radius:8px}
+.brand-main{font-weight:700;color:#fff}
+.brand-sub{font-size:12px;color:#cbd5e1}
+.nav a{color:#fff;margin-left:14px;text-decoration:none}
+.main-grid{display:grid;grid-template-columns:1fr 340px;gap:28px;margin-top:18px}
+.lead h1{margin:0;font-size:28px}
+.lead-desc{color:#555;margin:6px 0 18px}
+.generate-row{margin-top:10px}
+#genBtn{background:var(--accent);color:#fff;border:none;padding:10px 14px;border-radius:6px;cursor:pointer}
+.card{background:#fff;padding:18px;border-radius:8px;margin-bottom:16px;box-shadow:0 6px 18px rgba(12,18,30,0.04)}
+.card h2{margin:0 0 8px;font-size:20px}
+.meta{color:#777;font-size:13px;margin-bottom:8px}
+.excerpt{color:#333}
+.sidebar .widget{background:#fff;padding:16px;border-radius:8px;margin-bottom:16px}
+.site-footer{padding:24px 0;text-align:center;color:#666;margin-top:30px}
+.single .content img{max-width:100%;height:auto;display:block;margin:8px 0}
+@media(max-width:900px){.main-grid{grid-template-columns:1fr}.sidebar{order:2}}
