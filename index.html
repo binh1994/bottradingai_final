@@ -1,15 +1,56 @@
----
-layout: default
-title: Home
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AI-powered trading insights, tools and premium domain for sale: bottradingai.com" />
+  <title>Trading AI Blog – Smart Investing & Domain Sale</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header>
+    <div class="hero">
+      <h1>🤖 Trading AI Blog</h1>
+      <p>Latest insights on AI-powered trading, bots & investments</p>
+    </div>
 
-<h2>🧠 Latest AI-Generated Articles</h2>
+    <!-- Banner quảng cáo -->
+    <div class="ad-banner">
+      <script async="async" data-cfasync="false" src="//pl27891709.effectivegatecpm.com/4955a0184593e15cf0c89752f04aab3a/invoke.js"></script>
+      <div id="container-4955a0184593e15cf0c89752f04aab3a"></div>
+    </div>
+  </header>
 
-<ul>
-  {% for post in site.posts %}
-    <li class="post">
-      <a href="{{ post.url }}">{{ post.title }}</a>
-      <p>{{ post.excerpt }}</p>
-    </li>
-  {% endfor %}
-</ul>
+  <main>
+    <section class="posts">
+      <h2>📰 Latest AI-Generated Articles</h2>
+      {% for post in site.posts %}
+        <article class="post-card">
+          {% if post.image %}
+            <img src="{{ post.image }}" alt="{{ post.title }}">
+          {% endif %}
+          <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
+          <p>{{ post.description | truncate: 160 }}</p>
+        </article>
+      {% endfor %}
+    </section>
+
+    <section class="domain-sale">
+      <p>💎 This premium domain is for sale: <a href="https://afternic.com/domain/bottradingai.com">bottradingai.com</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Trading AI Blog</p>
+  </footer>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-33MQNED7W8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-33MQNED7W8');
+  </script>
+</body>
+</html>
