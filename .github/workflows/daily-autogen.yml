@@ -1,11 +1,11 @@
 name: Auto Generate Blog Post
 
 permissions:
-  contents: write     # ✅ Cấp quyền ghi để bot có thể commit & push
+  contents: write     # ✅ Cho phép commit & push
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # chạy mỗi ngày lúc 09:00 UTC (≈ 16:00 giờ Việt Nam)
+    - cron: '0 9 * * *'  # chạy mỗi ngày lúc 09:00 UTC (≈ 16:00 VN)
   workflow_dispatch:       # cho phép chạy thủ công từ tab Actions
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
       - name: 🧩 Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: true   # ✅ cho phép sử dụng GITHUB_TOKEN
+          persist-credentials: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🐍 Set up Python
@@ -44,17 +44,16 @@ jobs:
           git config --global user.name "Auto Bot"
           git config --global user.email "auto@users.noreply.github.com"
 
-          # Add folders that may contain new files
-          git add output/ || true
-          git add _posts/ || true
+          # Add folder chứa bài viết mới
+          git add output/ -A || true
 
-          # Check for changes before committing
+          # Kiểm tra thay đổi trước khi commit
           if git diff --cached --quiet; then
             echo "✅ No new posts generated. Skipping commit and push."
           else
             echo "📰 New post(s) detected — committing..."
             git commit -m "📰 Auto-generated post on $(date -u +"%Y-%m-%d %H:%M UTC")"
-            git push
+            git push origin HEAD:main
             echo "✅ Commit & push successful."
           fi
 
