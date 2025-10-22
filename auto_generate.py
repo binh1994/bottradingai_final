@@ -1,149 +1,173 @@
-import openai, os, random, datetime, requests, base64
-from pathlib import Path
+import os
+from openai import OpenAI
+import requests
+import random
+import datetime
 
-# === CONFIG ===
-OUTPUT = Path("output")
-POSTS = OUTPUT / "posts"
-POSTS.mkdir(parents=True, exist_ok=True)
+# ===============================
+# 🔑 CẤU HÌNH API KEY
+# ===============================
+OPENAI_API_KEY = "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"
+PIXABAY_API_KEY = "52881450-842ea9a445fb69d7d20de94c0"
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=OPENAI_API_KEY)
 
-SITE_NAME = "BotTradingAI - Global AI Trading News"
-DOMAIN = "https://bottradingai.com"
-GOOGLE_ANALYTICS = "G-33MQNED7W8"
-AD_SCRIPT = """
-<script async="async" data-cfasync="false" src="//pl27891709.effectivegatecpm.com/4955a0184593e15cf0c89752f04aab3a/invoke.js"></script>
-<div id="container-4955a0184593e15cf0c89752f04aab3a"></div>
-"""
-
-topics = [
-    "AI-driven stock trading strategies for 2025",
-    "The rise of autonomous trading bots in global markets",
-    "How machine learning is transforming crypto investments",
-    "Predictive analytics and the future of forex trading",
-    "AI regulation and ethics in algorithmic trading",
-    "Top 5 AI tools changing the investment landscape",
-    "How GPT-powered bots make smarter trading decisions",
-]
-
+# ===============================
+# 🧠 TẠO NỘI DUNG BÀI VIẾT
+# ===============================
 def generate_post():
+    topics = [
+        "AI-driven stock trading strategies for 2025",
+        "The rise of autonomous trading bots in global markets",
+        "How machine learning is transforming crypto investments",
+        "Predictive analytics and the future of forex trading",
+        "AI regulation and ethics in algorithmic trading",
+        "Top 5 AI tools changing the investment landscape",
+        "How GPT-powered bots make smarter trading decisions"
+    ]
     topic = random.choice(topics)
-    prompt = f"""
-Write a 700-word SEO-optimized article in English for readers in the US, UK, and Canada.
-Topic: "{topic}".
-Use professional tone (like Forbes, Cointelegraph, or TechCrunch).
-Include a clear title, introduction, subheadings, and conclusion.
-Output only the article content (HTML-friendly).
-"""
-    response = openai.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return topic, response.choices[0].message.content
+    print(f"\n🧠 Requesting article from OpenAI for topic: {topic}")
+    prompt = f"Write an SEO-friendly blog post titled '{topic}' for US, UK, and EU readers. Include intro, subheadings, and conclusion in HTML-ready format."
 
-# === Generate AI thumbnail using DALL·E ===
-def generate_image(title):
     try:
-        prompt = f"A professional AI trading themed photo for an article titled '{title}', futuristic, 16:9 ratio, ultra-realistic, suitable for tech news website."
-        result = openai.images.generate(
-            model="gpt-image-1",
-            prompt=prompt,
-            size="1200x630"
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an expert financial and AI blog writer."},
+                {"role": "user", "content": prompt}
+            ],
         )
-        image_data = base64.b64decode(result.data[0].b64_json)
-        filename = f"{datetime.date.today()}_{title[:40].replace(' ','_')}.jpg"
-        with open(POSTS / filename, "wb") as f:
-            f.write(image_data)
-        return filename
+        content = completion.choices[0].message.content
+        title = topic
+        print(f"✅ Article generated (approx length chars): {len(content)}")
+        return title, content
     except Exception as e:
-        print("⚠️ Image generation failed:", e)
+        print(f"❌ Error generating article: {e}")
+        return None, None
+
+
+# ===============================
+# 🖼️ TẠO HOẶC TÌM ẢNH MINH HỌA
+# ===============================
+def generate_image(topic):
+    print(f"\n🖼️ Requesting image from OpenAI (1024x1024)...")
+    try:
+        result = client.images.generate(
+            model="gpt-image-1",
+            prompt=f"A professional AI trading themed photo about {topic}, 16:9 ratio, ultra-realistic, suitable for tech news website.",
+            size="1024x1024"
+        )
+        image_url = result.data[0].url
+        print("✅ OpenAI image generated successfully.")
+        return image_url
+    except Exception as e:
+        print(f"⚠️ Image generation failed: {e}")
+        print("🔁 Trying Pixabay fallback...")
+        return get_pixabay_image(topic)
+
+
+# ===============================
+# 🖼️ TẢI ẢNH TỪ PIXABAY
+# ===============================
+def get_pixabay_image(query):
+    if not PIXABAY_API_KEY:
+        print("❌ Pixabay API key not found.")
+        return None
+    try:
+        url = f"https://pixabay.com/api/?key={PIXABAY_API_KEY}&q={query}&image_type=photo&per_page=50"
+        response = requests.get(url)
+        data = response.json()
+        if "hits" in data and len(data["hits"]) > 0:
+            hit = random.choice(data["hits"])
+            print(f"✅ Pixabay image found: {hit['webformatURL']}")
+            return hit["webformatURL"]
+        else:
+            print("❌ No Pixabay images found for query.")
+            return None
+    except Exception as e:
+        print(f"❌ Error fetching Pixabay image: {e}")
         return None
 
-# === Create full article HTML ===
-def create_post_html(title, content, image_filename):
-    date = datetime.date.today().strftime("%B %d, %Y")
-    desc = title[:150]
-    img_tag = f"<img src='{image_filename}' alt='{title}'>" if image_filename else ""
 
-    html = f"""<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{title} | {SITE_NAME}</title>
-<meta name="description" content="{desc}">
-<meta property="og:title" content="{title}">
-<meta property="og:description" content="{desc}">
-<meta property="og:image" content="{DOMAIN}/posts/{image_filename}">
-<link rel="stylesheet" href="../styles.css">
-{AD_SCRIPT}
-</head>
-<body>
-<header>
-  <h1><a href="../index.html">{SITE_NAME}</a></h1>
-  <nav>
-    <a href="../index.html">Home</a>
-    <a href="../about.html">About</a>
-    <a href="../contact.html">Contact</a>
-  </nav>
-</header>
-<main class="article">
-  <h2>{title}</h2>
-  <p class="date">📅 {date}</p>
-  {img_tag}
-  <div class="content">{content.replace('\n','<br>')}</div>
-</main>
-<footer>
-  <p>© 2025 <a href="{DOMAIN}">{DOMAIN}</a> | <a href="https://afternic.com/domain/bottradingai.com">Buy Domain</a></p>
-  <script async src="https://www.googletagmanager.com/gtag/js?id={GOOGLE_ANALYTICS}"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());gtag('config','{GOOGLE_ANALYTICS}');</script>
-</footer>
-</body>
-</html>"""
-    filename = f"{datetime.date.today()}_{title[:40].replace(' ','_')}.html"
-    (POSTS / filename).write_text(html, encoding="utf-8")
-    return filename
+# ===============================
+# 💾 LƯU FILE HTML RA THƯ MỤC OUTPUT
+# ===============================
+def save_post(title, content, image_url):
+    os.makedirs("output", exist_ok=True)
+    date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H%M")
+    filename = f"output/{date_str}_{title.replace(' ', '_')}.html"
 
-# === Update homepage ===
-def update_homepage():
-    posts = sorted(POSTS.glob("*.html"), reverse=True)
-    cards = ""
-    for p in posts:
-        img = str(p.with_suffix(".jpg").name)
-        cards += f"""
-        <div class='card'>
-          <a href='posts/{p.name}'>
-            <img src='posts/{img}' alt='{p.stem}'>
-            <h3>{p.stem.replace('_',' ')}</h3>
-          </a>
-        </div>"""
-    html = f"""<!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{SITE_NAME}</title>
-<meta name="description" content="Latest AI trading, crypto, and investment automation news.">
-<link rel="stylesheet" href="styles.css">
-</head><body>
-<header>
-  <h1>{SITE_NAME}</h1>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-  </nav>
-</header>
-<main>
-  <h2>Latest AI & Trading Insights</h2>
-  <div class="grid">{cards}</div>
-</main>
-<footer>{AD_SCRIPT}</footer>
-</body></html>"""
-    (OUTPUT / "index.html").write_text(html, encoding="utf-8")
+    GA_CODE = """
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-33MQNED7W8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-33MQNED7W8');
+    </script>
+    """
 
-# === MAIN ===
-title, content = generate_post()
-img = generate_image(title)
-create_post_html(title, content, img)
-update_homepage()
-print("✅ Article & image generated successfully.")
+    AD_SCRIPT = """
+    <!-- Ad Script -->
+    <script async="async" data-cfasync="false" src="//pl27891709.effectivegatecpm.com/4955a0184593e15cf0c89752f04aab3a/invoke.js"></script>
+    <div id="container-4955a0184593e15cf0c89752f04aab3a"></div>
+    """
+
+    html = f"""
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{title} | BotTradingAI</title>
+        <meta name="description" content="{title[:150]}">
+        {GA_CODE}
+        <style>
+            body {{ font-family: Arial, sans-serif; max-width: 780px; margin: auto; line-height: 1.7; background: #fdfdfd; color: #222; }}
+            img {{ width: 100%; border-radius: 8px; margin-bottom: 20px; }}
+            header, footer {{ text-align: center; margin: 30px 0; }}
+            h1 {{ color: #0b3954; }}
+            a {{ color: #0073e6; text-decoration: none; }}
+            a:hover {{ text-decoration: underline; }}
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1><a href="https://bottradingai.com">BotTradingAI</a></h1>
+            <p>Your AI-Powered Trading News Source</p>
+        </header>
+
+        <main>
+            <h2>{title}</h2>
+            <p><i>Published on {datetime.date.today().strftime("%B %d, %Y")}</i></p>
+            {'<img src="' + image_url + '">' if image_url else ''}
+            <div>{content}</div>
+        </main>
+
+        <footer>
+            <p>© 2025 BotTradingAI | <a href="https://afternic.com/domain/bottradingai.com">Buy This Domain</a></p>
+            {AD_SCRIPT}
+        </footer>
+    </body>
+    </html>
+    """
+
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(html)
+    print(f"✅ Post HTML created: {filename}")
+
+
+# ===============================
+# 🚀 CHẠY TOÀN BỘ QUY TRÌNH
+# ===============================
+def main():
+    title, content = generate_post()
+    if not content:
+        return
+    image_url = generate_image(title)
+    save_post(title, content, image_url)
+    print("\n🎉 All done – Article & image generated successfully!")
+
+
+if __name__ == "__main__":
+    main()
