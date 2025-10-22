@@ -1,37 +1,36 @@
-name: Daily Auto Article Generator
+name: Auto Generate Blog Post
 
 on:
   schedule:
-    - cron: '0 3 * * *'  # Chạy mỗi ngày lúc 3h sáng UTC (~10h sáng Việt Nam)
-  workflow_dispatch:
+    - cron: '0 9 * * *'  # chạy mỗi ngày lúc 9h sáng UTC (~16h VN)
+  workflow_dispatch:  # cho phép chạy thủ công trên GitHub
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
-      - name: Generate new AI article
+      - name: Run auto_generate.py
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          python auto_generate.py
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        run: python auto_generate.py
 
-      - name: Commit and push changes
+      - name: Commit and push new posts
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "Auto Bot"
+          git config --global user.email "auto@users.noreply.github.com"
           git add .
-          git commit -m "🤖 Auto-generate new AI article" || echo "No changes"
+          git commit -m "📰 Auto-generated post $(date)"
           git push
