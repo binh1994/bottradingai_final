@@ -7,8 +7,8 @@ import datetime
 # ===============================
 # 🔑 CẤU HÌNH API KEY
 # ===============================
-OPENAI_API_KEY = "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"
-PIXABAY_API_KEY = "52881450-842ea9a445fb69d7d20de94c0"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+PIXABAY_API_KEY = os.getenv("PIXABAY_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
