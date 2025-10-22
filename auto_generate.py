@@ -89,13 +89,13 @@ def get_pixabay_image(query):
 
 
 # ===============================
-# 💾 LƯU FILE HTML RA THƯ MỤC posts/
+# 💾 LƯU FILE HTML RA THƯ MỤC _posts/
 # ===============================
 def save_post(title, content, image_url):
-    os.makedirs("posts", exist_ok=True)
+    os.makedirs("_posts", exist_ok=True)
     date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H%M")
     safe_title = title.replace(" ", "_").replace("/", "_")
-    filename = f"posts/{date_str}_{safe_title}.html"
+    filename = f"_posts/{date_str}_{safe_title}.html"
 
     GA_CODE = """
     <!-- Google Analytics -->
