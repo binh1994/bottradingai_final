@@ -1,75 +1,75 @@
-# auto_generate.py - generate one SEO article and save as HTML into posts/
-import os, datetime, re
-try:
-    import openai
-except Exception as e:
-    print("Missing openai client. Install with: pip install openai==0.28")
-    raise
+import os, openai, datetime, json
+from jinja2 import Environment, FileSystemLoader
+from pathlib import Path
 
-OPENAI_KEY = os.getenv("OPENAI_API_KEY")
-if not OPENAI_KEY:
-    print("OPENAI_API_KEY environment variable is not set. Set it on Render or locally.")
-    raise SystemExit(1)
-openai.api_key = OPENAI_KEY
+# --- Config ---
+SITE_URL = "https://bottradingai.com"
+POSTS_DIR = Path("posts")
+TEMPLATES_DIR = Path("templates")
+STATIC_IMG_DIR = Path("static/images")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-MODEL = "gpt-3.5-turbo"
-POSTS_DIR = os.path.join(os.path.dirname(__file__), "posts")
-os.makedirs(POSTS_DIR, exist_ok=True)
+# --- Ensure folders exist ---
+POSTS_DIR.mkdir(exist_ok=True)
+STATIC_IMG_DIR.mkdir(parents=True, exist_ok=True)
 
-def slugify(text):
-    s = text.lower()
-    s = re.sub(r'[^a-z0-9\s-]', '', s)
-    s = re.sub(r'\s+', '-', s).strip('-')
-    return s[:80]
-
-def build_prompt(topic, keywords):
-    prompt = f"""You are a professional SEO content writer for an AI trading magazine.     Write a long-form SEO-optimized article in English about: {topic}.     Include an SEO-friendly title (<=70 chars), a meta description (<=160 chars), and the article content     of roughly 800-1100 words. Use subheadings, short paragraphs, and include the following keywords organically: {', '.join(keywords)}.     Return a JSON object only with keys: title, meta, content (where content is HTML-ready)."""
-    return prompt
-
-def generate(topic, keywords):
-    prompt = build_prompt(topic, keywords)
-    resp = openai.ChatCompletion.create(
-        model=MODEL,
-        messages=[{"role":"system","content":"You are a helpful SEO writer."},
-                  {"role":"user","content":prompt}],
-        max_tokens=1400,
-        temperature=0.65
+# --- Prompt setup ---
+def generate_blog_post():
+    topic_prompt = (
+        "Generate a unique SEO-friendly blog post title and outline "
+        "about trading bots, AI trading, or crypto investing. "
+        "Use an educational yet friendly tone for American readers."
     )
-    text = resp['choices'][0]['message']['content'].strip()
-    # attempt to find JSON in response
-    start = text.find('{')
-    end = text.rfind('}')
-    if start != -1 and end != -1:
-        j = text[start:end+1]
-        try:
-            import json
-            obj = json.loads(j)
-            return obj.get('title','Untitled'), obj.get('meta',''), obj.get('content','')
-        except:
-            pass
-    # fallback
-    return f"AI Market Insights - {datetime.date.today().isoformat()}", "AI Market Insights", text
+    topic = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": topic_prompt}],
+    ).choices[0].message.content.strip()
 
-def save_post(title, meta, content):
+    content_prompt = (
+        f"Write a 700-word article titled '{topic}' in English. "
+        "Tone: Friendly and educational. "
+        "Add clear structure, short paragraphs, SEO headings (h2/h3), and conclusion."
+    )
+
+    content = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": content_prompt}],
+    ).choices[0].message.content.strip()
+    return topic, content
+
+
+def generate_image(title):
+    filename = STATIC_IMG_DIR / f"{title[:40].replace(' ', '_')}.png"
+    try:
+        img = openai.images.generate(model="gpt-image-1", prompt=f"Illustration about {title} in dark trading style")
+        img_url = img.data[0].url
+        os.system(f"curl -s {img_url} -o {filename}")
+        return f"images/{filename.name}"
+    except Exception as e:
+        print("Image generation failed:", e)
+        return "images/default.png"
+
+
+def save_post(title, content, img_path):
     date_str = datetime.date.today().isoformat()
-    slug = slugify(title)
-    filename = f"{date_str}-{slug}.html"
-    filepath = os.path.join(POSTS_DIR, filename)
-    tpl_path = os.path.join(os.path.dirname(__file__), 'templates', 'post.html')
-    with open(tpl_path, 'r', encoding='utf-8') as f:
-        tpl = f.read()
-    html = tpl.replace('{{POST_TITLE}}', title).replace('{{POST_META}}', meta).replace('{{POST_CONTENT}}', content).replace('{{POST_DATE}}', date_str)
-    with open(filepath, 'w', encoding='utf-8') as f:
+    slug = title.lower().replace(" ", "-").replace("/", "-")
+    filename = POSTS_DIR / f"{slug}.html"
+
+    env = Environment(loader=FileSystemLoader(TEMPLATES_DIR))
+    template = env.get_template("post.html")
+
+    html = template.render(title=title, content=content, image=img_path, date=date_str, site_url=SITE_URL)
+
+    with open(filename, "w", encoding="utf-8") as f:
         f.write(html)
-    return filepath
+    print(f"✅ Created post: {filename}")
+
 
 def main():
-    topic = "AI in trading: automated strategies, market signals, and AI tools for traders"
-    keywords = ["AI trading", "automated trading", "market insights", "algo trading", "trading signals"] 
-    print('Generating article...')
-    title, meta, content = generate(topic, keywords)
-    path = save_post(title, meta, content)
-    print('Saved:', path)
+    title, content = generate_blog_post()
+    img_path = generate_image(title)
+    save_post(title, content, img_path)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
