@@ -39,7 +39,7 @@ def generate_post():
         )
         content = completion.choices[0].message.content
         title = topic
-        print(f"✅ Article generated (approx length chars): {len(content)}")
+        print(f"✅ Article generated (length: {len(content)} chars)")
         return title, content
     except Exception as e:
         print(f"❌ Error generating article: {e}")
@@ -50,24 +50,23 @@ def generate_post():
 # 🖼️ TẠO HOẶC TÌM ẢNH MINH HỌA
 # ===============================
 def generate_image(topic):
-    print(f"\n🖼️ Requesting image from OpenAI (1024x1024)...")
+    print(f"\n🖼️ Requesting image from OpenAI...")
     try:
         result = client.images.generate(
             model="gpt-image-1",
-            prompt=f"A professional AI trading themed photo about {topic}, 16:9 ratio, ultra-realistic, suitable for tech news website.",
+            prompt=f"A professional AI trading themed image about {topic}, 16:9 ratio, ultra-realistic, suitable for tech news website.",
             size="1024x1024"
         )
         image_url = result.data[0].url
         print("✅ OpenAI image generated successfully.")
         return image_url
     except Exception as e:
-        print(f"⚠️ Image generation failed: {e}")
-        print("🔁 Trying Pixabay fallback...")
+        print(f"⚠️ OpenAI image generation failed: {e}")
         return get_pixabay_image(topic)
 
 
 # ===============================
-# 🖼️ TẢI ẢNH TỪ PIXABAY
+# 🖼️ TẢI ẢNH TỪ PIXABAY (fallback)
 # ===============================
 def get_pixabay_image(query):
     if not PIXABAY_API_KEY:
@@ -90,12 +89,13 @@ def get_pixabay_image(query):
 
 
 # ===============================
-# 💾 LƯU FILE HTML RA THƯ MỤC OUTPUT
+# 💾 LƯU FILE HTML RA THƯ MỤC posts/
 # ===============================
 def save_post(title, content, image_url):
-    os.makedirs("output", exist_ok=True)
+    os.makedirs("posts", exist_ok=True)
     date_str = datetime.datetime.now().strftime("%Y-%m-%d_%H%M")
-    filename = f"output/{date_str}_{title.replace(' ', '_')}.html"
+    safe_title = title.replace(" ", "_").replace("/", "_")
+    filename = f"posts/{date_str}_{safe_title}.html"
 
     GA_CODE = """
     <!-- Google Analytics -->
@@ -133,7 +133,7 @@ def save_post(title, content, image_url):
     </head>
     <body>
         <header>
-            <h1><a href="https://bottradingai.com">BotTradingAI</a></h1>
+            <h1><a href="/">BotTradingAI</a></h1>
             <p>Your AI-Powered Trading News Source</p>
         </header>
 
@@ -155,6 +155,7 @@ def save_post(title, content, image_url):
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"✅ Post HTML created: {filename}")
+    return filename
 
 
 # ===============================
@@ -163,6 +164,7 @@ def save_post(title, content, image_url):
 def main():
     title, content = generate_post()
     if not content:
+        print("❌ No content generated.")
         return
     image_url = generate_image(title)
     save_post(title, content, image_url)
