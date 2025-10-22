@@ -116,5 +116,5 @@ def main():
     save_post(title, content, image_url)
     print("\n🎉 Done — post generated successfully!")
 
-if name == "main":
+if __name__ == "__main__":
     main()
