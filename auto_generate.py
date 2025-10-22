@@ -1,6 +1,5 @@
 import os
 from openai import OpenAI
-import requests
 import random
 import datetime
 
@@ -8,7 +7,6 @@ import datetime
 # 🔑 API KEYS
 # ===============================
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-PIXABAY_API_KEY = os.getenv("PIXABAY_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # ===============================
@@ -27,13 +25,20 @@ def generate_post():
     topic = random.choice(topics)
     print(f"\n🧠 Generating article: {topic}")
 
-    prompt = f"Write an SEO-friendly blog post titled '{topic}' in English for trading audiences. Include intro, sections, and conclusion in HTML format."
+    prompt = f"""
+Write a **Markdown-formatted** SEO blog post titled '{topic}'.
+- Audience: AI trading & investing.
+- Include: introduction, 3 sections, and a conclusion.
+- Add 1-2 markdown images (use ![alt text](IMAGE_PLACEHOLDER)).
+- Add relevant keywords naturally.
+- Do NOT include <!DOCTYPE html> or <html> tags.
+    """
 
     try:
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are an expert AI trading blogger."},
+                {"role": "system", "content": "You are an expert AI finance content writer."},
                 {"role": "user", "content": prompt}
             ],
         )
@@ -44,29 +49,12 @@ def generate_post():
         return None, None
 
 # ===============================
-# 🖼 TẠO ẢNH
-# ===============================
-def generate_image(topic):
-    try:
-        result = client.images.generate(
-            model="gpt-image-1",
-            prompt=f"A professional AI trading themed image about {topic}, realistic, 16:9 ratio",
-            size="1024x1024"
-        )
-        image_url = result.data[0].url
-        print("✅ Image generated successfully.")
-        return image_url
-    except Exception as e:
-        print(f"⚠️ Image generation failed: {e}")
-        return None
-
-# ===============================
 # 💾 LƯU FILE MARKDOWN (_posts)
 # ===============================
 def save_post(title, content, image_url):
     os.makedirs("_posts", exist_ok=True)
     date = datetime.date.today().strftime("%Y-%m-%d")
-    slug = title.lower().replace(" ", "_").replace("/", "_")
+    slug = title.lower().replace(" ", "-").replace("/", "-")
     filename = f"_posts/{date}-{slug}.md"
 
     GA_CODE = """<!-- Google Analytics -->
@@ -86,19 +74,15 @@ gtag('config', 'G-33MQNED7W8');
 layout: post
 title: "{title}"
 date: {datetime.datetime.now().isoformat()}
-description: "{title[:150]}"
-image: "{image_url if image_url else ''}"
----\n
+description: "{title} — Learn how AI and automation are transforming finance."
+image: "{image_url if image_url else '/assets/images/default-banner.jpg'}"
+---
 """
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write(front_matter)
         f.write(f"{GA_CODE}\n\n")
-        f.write(f"<h2>{title}</h2>\n")
-        f.write(f"<p><i>Published on {datetime.date.today().strftime('%B %d, %Y')}</i></p>\n")
-        if image_url:
-            f.write(f'<img src="{image_url}" alt="{title}">\n\n')
-        f.write(content)
+        f.write(content.strip())
         f.write(f"\n\n{AD_SCRIPT}")
 
     print(f"✅ Post saved as: {filename}")
@@ -112,9 +96,11 @@ def main():
     if not content:
         print("❌ No content generated.")
         return
-    image_url = generate_image(title)
+
+    # Không cần tạo ảnh bằng AI để giảm dung lượng & tránh lỗi
+    image_url = f"/assets/images/{title.lower().replace(' ', '_')}.jpg"
     save_post(title, content, image_url)
-    print("\n🎉 Done — post generated successfully!")
+    print("\n🎉 Done — SEO post generated successfully!")
 
 if __name__ == "__main__":
     main()
