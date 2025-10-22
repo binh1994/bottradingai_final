@@ -1,16 +1,7 @@
 title: "Trading AI Blog"
-description: "AI-generated articles about algorithmic trading and investing"
+description: "AI-generated articles about algorithmic trading and investing."
 theme: minima
 markdown: kramdown
-
-collections:
-  posts:
-    output: true
-    permalink: /:categories/:year/:month/:day/:title/
-
-defaults:
-  - scope:
-      path: ""
-      type: "posts"
-    values:
-      layout: "default"
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
