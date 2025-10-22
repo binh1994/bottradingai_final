@@ -1,12 +1,12 @@
 name: Auto Generate Blog Post
 
 permissions:
-  contents: write     # ✅ Cho phép commit & push
+  contents: write     # ✅ Cho phép ghi & push vào repo
 
 on:
   schedule:
     - cron: '0 9 * * *'  # chạy mỗi ngày lúc 09:00 UTC (≈ 16:00 VN)
-  workflow_dispatch:       # cho phép chạy thủ công từ tab Actions
+  workflow_dispatch:       # cho phép chạy thủ công
 
 jobs:
   run:
@@ -37,23 +37,27 @@ jobs:
           echo "Running auto_generate.py ..."
           python auto_generate.py
 
-      - name: 💾 Commit and push new posts (if any)
+      - name: 💾 Copy generated posts to _posts and commit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "Auto Bot"
           git config --global user.email "auto@users.noreply.github.com"
 
-          # Add folder chứa bài viết mới
-          git add output/ -A || true
+          # ✅ Copy bài viết từ output sang _posts để Jekyll build được
+          if [ -d "output" ]; then
+            cp -r output/* _posts/ || true
+          fi
 
-          # Kiểm tra thay đổi trước khi commit
+          git add _posts/ || true
+
+          # Commit nếu có thay đổi
           if git diff --cached --quiet; then
             echo "✅ No new posts generated. Skipping commit and push."
           else
             echo "📰 New post(s) detected — committing..."
             git commit -m "📰 Auto-generated post on $(date -u +"%Y-%m-%d %H:%M UTC")"
-            git push origin HEAD:main
+            git push
             echo "✅ Commit & push successful."
           fi
 
