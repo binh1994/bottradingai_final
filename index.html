@@ -1,56 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AI-powered trading insights, tools and premium domain for sale: bottradingai.com" />
-  <title>Trading AI Blog – Smart Investing & Domain Sale</title>
-  <link rel="stylesheet" href="assets/style.css" />
-</head>
-<body>
-  <header>
-    <div class="hero">
-      <h1>🤖 Trading AI Blog</h1>
-      <p>Latest insights on AI-powered trading, bots & investments</p>
-    </div>
+---
+layout: default
+title: Home
+---
 
-    <!-- Banner quảng cáo -->
-    <div class="ad-banner">
-      <script async="async" data-cfasync="false" src="//pl27891709.effectivegatecpm.com/4955a0184593e15cf0c89752f04aab3a/invoke.js"></script>
-      <div id="container-4955a0184593e15cf0c89752f04aab3a"></div>
-    </div>
-  </header>
+<section class="hero" style="padding:40px 0;text-align:center;">
+  <h2 style="margin:0;font-size:26px;">🚀 Welcome to Trading AI Blog</h2>
+  <p style="margin:8px 0 0;color:#eef6ff;">Latest insights on AI-powered trading, bots & investments</p>
+</section>
 
-  <main>
-    <section class="posts">
-      <h2>📰 Latest AI-Generated Articles</h2>
+<section class="posts" style="margin-top:18px;">
+  <h3 style="margin-left:8px;">📰 Latest AI-Generated Articles</h3>
+
+  <div style="max-width:980px;margin:12px auto;">
+    {% if site.posts.size > 0 %}
       {% for post in site.posts %}
-        <article class="post-card">
+        <article class="post-card" style="background:#fff;border-radius:12px;padding:18px;margin:16px 0;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
           {% if post.image %}
-            <img src="{{ post.image }}" alt="{{ post.title }}">
+            <img src="{{ post.image }}" alt="{{ post.title }}" style="width:100%;border-radius:8px;margin-bottom:12px;">
           {% endif %}
-          <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
-          <p>{{ post.description | truncate: 160 }}</p>
+          <h4 style="margin:0 0 6px;"><a href="{{ post.url }}">{{ post.title }}</a></h4>
+          <p style="color:#666;margin:0 0 8px;">{{ post.description | default: post.excerpt | strip_html | truncate: 160 }}</p>
+          <p style="margin:0;color:#999;font-size:13px;"><small>{{ post.date | date: "%B %d, %Y" }}</small></p>
         </article>
       {% endfor %}
-    </section>
+    {% else %}
+      <p style="padding:18px;background:white;border-radius:8px;">No posts yet — the bot will generate the first article soon.</p>
+    {% endif %}
+  </div>
+</section>
 
-    <section class="domain-sale">
-      <p>💎 This premium domain is for sale: <a href="https://afternic.com/domain/bottradingai.com">bottradingai.com</a></p>
-    </section>
-  </main>
-
-  <footer>
-    <p>© 2025 Trading AI Blog</p>
-  </footer>
-
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-33MQNED7W8"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-33MQNED7W8');
-  </script>
-</body>
-</html>
+<section class="domain-sale" style="margin-top:18px;text-align:center;">
+  <div style="display:inline-block;background:#fff7e6;padding:16px;border-radius:10px;">
+    💎 This premium domain is for sale: <a href="https://afternic.com/domain/bottradingai.com">bottradingai.com</a>
+  </div>
+</section>
