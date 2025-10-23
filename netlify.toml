@@ -1,12 +1,6 @@
+[[plugins]]
+package = "netlify-plugin-sitemap"
+
 [build]
-  # install ruby gems first, then build with bundle exec jekyll
-  command = "bundle install --jobs 4 && bundle exec jekyll build"
   publish = "_site"
-
-[build.environment]
-  RUBY_VERSION = "3.2.2"
-  JEKYLL_ENV = "production"
-
-# optional: reduce concurrency on Netlify builders
-[context.production.environment]
-  JEKYLL_ENV = "production"
+  command = "jekyll build"
