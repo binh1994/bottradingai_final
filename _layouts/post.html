@@ -1,0 +1,23 @@
+---
+layout: default
+---
+
+<article style="background:white;padding:22px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+  <h2 style="margin-top:0;">{{ page.title }}</h2>
+  <p style="color:#666;margin-top:4px;"><small>Published on {{ page.date | date: "%B %d, %Y" }}</small></p>
+
+  {% if page.image %}
+    <div style="margin:16px 0;">
+      <img src="{{ page.image }}" alt="{{ page.title }}" style="width:100%;border-radius:10px;">
+    </div>
+  {% endif %}
+
+  <div class="post-body">
+    {{ content }}
+  </div>
+
+  <div style="margin-top:20px;">
+    <!-- in-post ad container (kept minimal) -->
+    <div id="container-4955a0184593e15cf0c89752f04aab3a"></div>
+  </div>
+</article>
