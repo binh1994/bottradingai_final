@@ -1,23 +1,25 @@
----
-layout: default
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ page.title }}</title>
+  <meta name="description" content="{{ page.excerpt | strip_html | truncate: 160 }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family:Arial, sans-serif; background:#f9fafb; color:#111; line-height:1.6;">
 
-<article style="background:white;padding:22px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
-  <h2 style="margin-top:0;">{{ page.title }}</h2>
-  <p style="color:#666;margin-top:4px;"><small>Published on {{ page.date | date: "%B %d, %Y" }}</small></p>
+  <div style="max-width:800px; margin:40px auto; background:#fff; padding:30px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+    {% if page.image %}
+      <img src="{{ page.image }}" alt="{{ page.title }}" style="width:100%; border-radius:12px; margin-bottom:20px;">
+    {% endif %}
 
-  {% if page.image %}
-    <div style="margin:16px 0;">
-      <img src="{{ page.image }}" alt="{{ page.title }}" style="width:100%;border-radius:10px;">
+    <h1 style="font-size:28px; font-weight:700;">{{ page.title }}</h1>
+    <p style="color:#666;"><em>{{ page.author }}</em></p>
+
+    <div class="content">
+      {{ content }}
     </div>
-  {% endif %}
-
-  <div class="post-body">
-    {{ content }}
   </div>
 
-  <div style="margin-top:20px;">
-    <!-- in-post ad container (kept minimal) -->
-    <div id="container-4955a0184593e15cf0c89752f04aab3a"></div>
-  </div>
-</article>
+</body>
+</html>
