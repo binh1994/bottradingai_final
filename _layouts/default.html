@@ -2,29 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{{ page.title }} | {{ site.title }}</title>
+  <title>{{ page.title | default: site.title }} | {{ site.title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 0; background: #f9f9f9; }
-    header { background: #1e88e5; color: white; padding: 1rem 2rem; }
-    main { max-width: 800px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    a { color: #1e88e5; text-decoration: none; }
-    .post { margin-bottom: 1.5rem; }
-    footer { text-align: center; margin: 3rem 0; color: #555; }
-  </style>
+  <meta name="description" content="{{ page.description | default: site.description }}">
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+  {% seo %}
+  <!-- Google Analytics (kept globally here) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-33MQNED7W8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-33MQNED7W8');
+  </script>
 </head>
 <body>
-  <header>
-    <h1>{{ site.title }}</h1>
-    <p>{{ site.description }}</p>
+  <header style="background:linear-gradient(90deg,#0055ff,#00ccff);color:white;padding:30px 20px;text-align:center;">
+    <h1 style="margin:0;font-size:28px;">🤖 {{ site.title }}</h1>
+    <p style="margin:6px 0 0;">{{ site.description }}</p>
   </header>
 
-  <main>
+  <main style="max-width:1000px;margin:30px auto;padding:0 16px;">
     {{ content }}
   </main>
 
-  <footer>
-    © {{ "now" | date: "%Y" }} Trading AI Blog
+  <footer style="text-align:center;padding:24px 8px;color:#666;">
+    <!-- Footer ad slot (kept minimal) -->
+    <div style="margin-bottom:12px;">
+      <script async="async" data-cfasync="false" src="//pl27891709.effectivegatecpm.com/4955a0184593e15cf0c89752f04aab3a/invoke.js"></script>
+      <div id="container-4955a0184593e15cf0c89752f04aab3a"></div>
+    </div>
+
+    <p>© {{ "now" | date: "%Y" }} {{ site.title }} • <a href="https://afternic.com/domain/bottradingai.com">Domain for sale</a></p>
   </footer>
 </body>
 </html>
