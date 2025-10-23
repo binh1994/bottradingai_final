@@ -3,34 +3,58 @@ layout: default
 title: Home
 ---
 
-<section class="hero" style="padding:40px 0;text-align:center;">
-  <h2 style="margin:0;font-size:26px;">🚀 Welcome to Trading AI Blog</h2>
-  <p style="margin:8px 0 0;color:#eef6ff;">Latest insights on AI-powered trading, bots & investments</p>
-</section>
+<main style="display:flex;justify-content:center;gap:30px;flex-wrap:wrap;padding:20px;">
 
-<section class="posts" style="margin-top:18px;">
-  <h3 style="margin-left:8px;">📰 Latest AI-Generated Articles</h3>
+  <!-- 📰 Cột bài viết -->
+  <section class="posts" style="flex:1 1 650px;max-width:720px;">
+    <section class="hero" style="padding:40px 0;text-align:center;">
+      <h2 style="margin:0;font-size:26px;">🚀 Welcome to Trading AI Blog</h2>
+      <p style="margin:8px 0 0;color:#eef6ff;">Latest insights on AI-powered trading, bots & investments</p>
+    </section>
 
-  <div style="max-width:980px;margin:12px auto;">
-    {% if site.posts.size > 0 %}
-      {% for post in site.posts %}
-        <article class="post-card" style="background:#fff;border-radius:12px;padding:18px;margin:16px 0;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
-          {% if post.image %}
-            <img src="{{ post.image }}" alt="{{ post.title }}" style="width:100%;border-radius:8px;margin-bottom:12px;">
-          {% endif %}
-          <h4 style="margin:0 0 6px;"><a href="{{ post.url }}">{{ post.title }}</a></h4>
-          <p style="color:#666;margin:0 0 8px;">{{ post.description | default: post.excerpt | strip_html | truncate: 160 }}</p>
-          <p style="margin:0;color:#999;font-size:13px;"><small>{{ post.date | date: "%B %d, %Y" }}</small></p>
-        </article>
-      {% endfor %}
-    {% else %}
-      <p style="padding:18px;background:white;border-radius:8px;">No posts yet — the bot will generate the first article soon.</p>
-    {% endif %}
-  </div>
-</section>
+    <section style="margin-top:18px;">
+      <h3 style="margin-left:8px;">📰 Latest AI-Generated Articles</h3>
 
-<section class="domain-sale" style="margin-top:18px;text-align:center;">
-  <div style="display:inline-block;background:#fff7e6;padding:16px;border-radius:10px;">
-    💎 This premium domain is for sale: <a href="https://afternic.com/domain/bottradingai.com">bottradingai.com</a>
-  </div>
-</section>
+      <div style="max-width:980px;margin:12px auto;">
+        {% if site.posts.size > 0 %}
+          {% for post in site.posts %}
+            <article class="post-card" style="background:#fff;border-radius:12px;padding:18px;margin:16px 0;box-shadow:0 2px 10px rgba(0,0,0,0.06);">
+              {% if post.image %}
+                <img src="{{ post.image }}" alt="{{ post.title }}" style="width:100%;border-radius:8px;margin-bottom:12px;">
+              {% endif %}
+              <h4 style="margin:0 0 6px;"><a href="{{ post.url }}">{{ post.title }}</a></h4>
+              <p style="color:#666;margin:0 0 8px;">{{ post.description | default: post.excerpt | strip_html | truncate: 160 }}</p>
+              <p style="margin:0;color:#999;font-size:13px;"><small>{{ post.date | date: "%B %d, %Y" }}</small></p>
+            </article>
+          {% endfor %}
+        {% else %}
+          <p style="padding:18px;background:white;border-radius:8px;">No posts yet — the bot will generate the first article soon.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- 💎 Domain for Sale -->
+    <section class="domain-sale" style="margin-top:18px;text-align:center;">
+      <div style="display:inline-block;background:#fff7e6;padding:16px;border-radius:10px;">
+        💎 This premium domain is for sale: 
+        <a href="https://afternic.com/domain/bottradingai.com">bottradingai.com</a>
+      </div>
+    </section>
+  </section>
+
+  <!-- 📢 Sidebar quảng cáo cố định -->
+  <aside style="flex:0 1 300px;position:sticky;top:20px;height:fit-content;">
+    <h3 style="text-align:center;">Sponsored Ads</h3>
+    {% include ad_sidebar.html %}
+  </aside>
+
+</main>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-33MQNED7W8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-33MQNED7W8');
+</script>
