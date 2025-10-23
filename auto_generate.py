@@ -1,134 +1,106 @@
-import os
-import random
-import datetime
-import re
-import time
+import os, random, datetime
 from openai import OpenAI
 
-# ===========================
-# 🔑 CONFIG
-# ===========================
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
-AUTHOR_NAME = "Alex Reed – AI Financial Analyst"
 
-BACKLINK_DOMAINS = [
-    "botblockchain.io", "botgame.io", "metaversebot.io", "nftgameai.com",
-    "hubgaming.io", "botdefi.io", "esportsai.io", "nftgamepro.com",
-    "botesports.com", "aiesports.io", "pronftgame.com",
-    "botplay.io", "botweb3ai.com", "bottradingai.com"
-]
-
-TOPICS = [
-    "Top 5 AI Trading Models Outperforming Humans",
-    "AI-driven stock trading strategies for 2025",
-    "How GPT-powered bots are changing forex trading",
-    "Predictive analytics in cryptocurrency markets",
-    "The rise of autonomous trading bots in global markets",
-    "How AI is redefining risk management in investing",
-    "Ethical AI in finance: what traders should know"
-]
-
-UNSPLASH_QUERIES = ["ai", "trading", "finance", "crypto", "stock", "data"]
-
-# ===========================
-# 🧠 GENERATE CONTENT
-# ===========================
+# ==========================================
+# 1️⃣ Sinh bài viết AI có mở đầu + backlink + related articles
+# ==========================================
 def generate_post():
-    topic = random.choice(TOPICS)
-    print(f"\n🧠 Generating SEO article: {topic}")
-
+    topics = [
+        "AI-driven stock trading strategies for 2025",
+        "How AI is transforming crypto investments",
+        "Predictive analytics and forex trading",
+        "AI in portfolio optimization",
+        "Top 5 AI trading bots outperforming humans",
+    ]
+    topic = random.choice(topics)
     prompt = f"""
-Write a detailed, SEO-optimized blog post titled "{topic}" in Markdown format.
-Include:
-- A human-like intro paragraph (like a real writer).
-- 3 main sections (use ## headings).
-- A conclusion.
-- Mention AI trading naturally.
-- No HTML, only Markdown.
-"""
+Write a Markdown SEO blog post titled '{topic}' (English).
+Add a human intro:
+"In today’s fast-moving AI-driven markets, traders are adapting faster than ever. Let’s break down what’s happening in 2025..."
+Include 3 sections + conclusion.
+Author: 'By Alex Reed – AI Financial Analyst'.
+At the end, add "### Related Articles" with 3 fake internal links using Markdown.
+Naturally insert backlinks (one of these domains) inside content:
+botblockchain.io, botgame.io, metaversebot.io, nftgameai.com, hubgaming.io, botdefi.io, esportsai.io,
+nftgamepro.com, botesports.com, aiesports.io, pronftgame.com, botplay.io, botweb3ai.com, bottradingai.com
+    """
 
     try:
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a professional AI finance blogger."},
+                {"role": "system", "content": "You are an expert AI financial blogger who writes engaging SEO content."},
                 {"role": "user", "content": prompt}
             ],
         )
-        return topic, completion.choices[0].message.content
+        content = completion.choices[0].message.content
+        return topic, content
     except Exception as e:
-        print("❌ OpenAI Error:", e)
-        return topic, "Content generation failed."
+        print(f"❌ Error generating post: {e}")
+        return None, None
 
-# ===========================
-# 🖼 GET UNSPLASH IMAGE
-# ===========================
-def get_image():
-    query = ",".join(random.sample(UNSPLASH_QUERIES, 2))
-    return f"https://source.unsplash.com/800x400/?{query}"
 
-# ===========================
-# 🔗 ROTATE BACKLINKS
-# ===========================
-def get_backlinks():
-    selected = random.sample(BACKLINK_DOMAINS, random.randint(2, 3))
-    return [f"[{d}](https://{d})" for d in selected]
+# ==========================================
+# 2️⃣ Gắn ảnh Unsplash ngẫu nhiên
+# ==========================================
+def get_random_unsplash():
+    tags = ["ai", "finance", "trading", "technology", "investment"]
+    tag = random.choice(tags)
+    return f"https://source.unsplash.com/800x450/?{tag},{random.choice(tags)}"
 
-# ===========================
-# 💾 SAVE POST
-# ===========================
-def save_post(title, content, image_url, backlinks):
+
+# ==========================================
+# 3️⃣ Lưu file Markdown hợp lệ cho Jekyll
+# ==========================================
+def save_post(title, content):
     os.makedirs("_posts", exist_ok=True)
     date = datetime.date.today().strftime("%Y-%m-%d")
-    slug = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
+    slug = title.lower().replace(" ", "-").replace("/", "-")
     filename = f"_posts/{date}-{slug}.md"
 
-    front_matter = f"""---
+    image_url = get_random_unsplash()
+
+    ad_code = """<!-- Ad -->
+<div class="ad-banner" style="text-align:center;margin:20px auto;">
+  <script async="async" data-cfasync="false"
+    src="//pl27891709.effectivegatecpm.com/4955a0184593e15cf0c89752f04aab3a/invoke.js">
+  </script>
+  <div id="container-4955a0184593e15cf0c89752f04aab3a"></div>
+  <iframe src="//pl27891709.effectivegatecpm.com/4955a0184593e15cf0c89752f04aab3a/invoke.js" 
+    style="width:300px;height:250px;border:none;overflow:hidden;"></iframe>
+</div>"""
+
+    front = f"""---
 layout: post
 title: "{title}"
 date: {datetime.datetime.now().isoformat()}
-description: "{title} — AI and trading insights for modern investors."
+description: "{title} - AI trading insights"
 image: "{image_url}"
-author: "{AUTHOR_NAME}"
 ---
 """
 
-    # đoạn mở đầu “con người” + banner quảng cáo
-    ad_block = "{% include ad.html %}\n\n"
-    intro = "_In today’s fast-moving AI-driven markets, traders are adapting faster than ever. Let’s break down what’s happening in 2025 and how innovation is reshaping finance._\n\n"
-
     with open(filename, "w", encoding="utf-8") as f:
-        f.write(front_matter)
-        f.write(f"![{title}]({image_url})\n\n")
-        f.write(f"*By {AUTHOR_NAME}*\n\n")
-        f.write(intro)
-        f.write(ad_block)
-        f.write(content.strip())
-        f.write("\n\n---\n\n### Related Articles\n")
-        f.write("{% for p in site.posts limit:3 %}\n")
-        f.write("  {% if p.url != page.url %}\n")
-        f.write("  - [{{ p.title }}]({{ p.url }})\n")
-        f.write("  {% endif %}\n")
-        f.write("{% endfor %}\n\n")
-        f.write(ad_block)
-        f.write("**Explore more from our AI network:**  \n")
-        f.write(" | ".join(backlinks))
-        f.write("\n\n")
-        f.write(ad_block)
+        f.write(front)
+        f.write(ad_code + "\n")
+        f.write(content)
+        f.write("\n\n" + ad_code)
 
-    print(f"✅ Post saved as: {filename}")
-    return filename
+    print(f"✅ Generated: {filename}")
 
-# ===========================
-# 🚀 MAIN
-# ===========================
+
+# ==========================================
+# 4️⃣ MAIN
+# ==========================================
 def main():
     title, content = generate_post()
-    image_url = get_image()
-    backlinks = get_backlinks()
-    save_post(title, content, image_url, backlinks)
-    print("🎯 Done — post generated successfully with image, ads, backlinks, and SEO intro!")
+    if not content:
+        return
+    save_post(title, content)
+    print("\n🎉 Post generated with Unsplash image + ad + backlinks!")
+
 
 if __name__ == "__main__":
     main()
