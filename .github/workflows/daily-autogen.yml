@@ -1,65 +1,36 @@
-name: Auto Generate Blog Post
-
-permissions:
-  contents: write     # ✅ Cho phép ghi & push vào repo
+name: Auto Generate AI Blog Post
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # chạy mỗi ngày lúc 09:00 UTC (≈ 16:00 VN)
-  workflow_dispatch:       # cho phép chạy thủ công
+    - cron: '0 3 * * *'  # Tự động tạo bài lúc 03:00 UTC mỗi ngày (10h sáng VN)
+  workflow_dispatch:  # Cho phép chạy thủ công nếu cần
 
 jobs:
-  run:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 🧩 Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          persist-credentials: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          python-version: '3.x'
 
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
 
-      - name: 📦 Install dependencies
+      - name: Generate AI Post
+        run: python generate_post.py
+
+      - name: Commit new post
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add _posts/*.html
+          git commit -m "Auto-generated new AI article" || echo "No changes"
+          git push
 
-      - name: 🤖 Run content generator
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+      - name: Ping Google for indexing
         run: |
-          echo "Running auto_generate.py ..."
-          python auto_generate.py
-
-      - name: 💾 Copy generated posts to _posts and commit
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --global user.name "Auto Bot"
-          git config --global user.email "auto@users.noreply.github.com"
-
-          # ✅ Copy bài viết từ output sang _posts để Jekyll build được
-          if [ -d "output" ]; then
-            cp -r output/* _posts/ || true
-          fi
-
-          git add _posts/ || true
-
-          # Commit nếu có thay đổi
-          if git diff --cached --quiet; then
-            echo "✅ No new posts generated. Skipping commit and push."
-          else
-            echo "📰 New post(s) detected — committing..."
-            git commit -m "📰 Auto-generated post on $(date -u +"%Y-%m-%d %H:%M UTC")"
-            git push
-            echo "✅ Commit & push successful."
-          fi
-
-      - name: 🧹 Complete job
-        run: echo "🎉 Workflow finished successfully!"
+          curl "https://www.google.com/ping?sitemap=https://bottradingai.com/sitemap.xml"
