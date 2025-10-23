@@ -1,7 +1,12 @@
 title: "Trading AI Blog"
 description: "AI-generated articles about algorithmic trading and investing."
 theme: minima
+url: "https://bottradingai.com"
+baseurl: ""
 markdown: kramdown
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
+
+# Optional: control excerpts
+excerpt_separator: "\n\n"
